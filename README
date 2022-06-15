@@ -1,0 +1,10 @@
+The main code to run the 1D Compressible Boundary Layer code is test.py.(Tentative name) It is a python based code that runs on GPU using Cupy.
+The code solves 1-D RANS equations with density corrected SST k-w model and velocity-temperature relationship based on a generalized Reynolds analogy[Ref 1,2].
+Boudary conditions are dirichlet boundary conditions for all dependent variables with PDE formulation(velocity, k, omega)
+
+Problem_Statement ppt contains a detailed information on the equation, initial condition and boundary condition.
+
+Ref 
+1. Gustavo J. Otero R., Ashish Patel, Rafael Diez S., Rene Pecnik, Turbulence modelling for flows with strong variations in thermo-physical properties, 
+International Journal of Heat and Fluid Flow,Volume 73,2018
+2. Zhang, Y., Bi, W., Hussain, F., & She, Z. (2014). A generalized Reynolds analogy for compressible wall-bounded turbulent flows. Journal of Fluid Mechanics, 739, 392-420
