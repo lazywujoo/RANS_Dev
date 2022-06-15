@@ -1,4 +1,4 @@
-def solveEqn(x,A,b,omega):
+def solveEqn(x,A,b,omega,igmres):
     # import pdb
     import cupy as cp
     import cupyx.scipy.sparse.linalg as cpx
@@ -10,17 +10,20 @@ def solveEqn(x,A,b,omega):
     tmp2 = x[0]*A[1:n-1,0]
     b[0] = b[0] - tmp2[0,0]
     tmp2 = x[n-1]*A[1:n-1,n-1]
-    # pdb.set_trace()
     b[n-3] = b[n-3]- tmp2[n-3,0]
     
     # perform under-relaxation
     # for m in range (0,n-3):   
     #     b[m] = b[m] + (1-omega)/omega * A[1:n-1,m+1]*x[1:n-1]
-    b[:] = b[:] + (1-omega)/omega * A.diagonal()[1:-1]*x[1:-1]
-    for m in range(0,n):    
-        A[m,m]= (A[m,m]/omega)
-    # cp.fill_diagonal(A, A.diagonal()/omega)
+    if igmres == 0 : 
+        b[:] = b[:] + (1-omega)/omega * A.diagonal()[1:-1]*x[1:-1]
+        for m in range(0,n):    
+            A[m,m]= (A[m,m]/omega)
+        # cp.fill_diagonal(A, A.diagonal()/omega)
     
-    # solve linear system
-    x_new[1:-1] = cpx.spsolve(A[1:-1, 1:-1], b)
+        # solve linear system
+        x_new[1:-1] = cpx.spsolve(A[1:-1, 1:-1], b)
+    elif igmres == 1:
+        sol = cpx.gmres(A[1:n-1, 1:n-1],b,x[1:n-1], tol=1e-6, maxiter=1 )
+        x_new[1:-1] = sol[0]
     return x_new

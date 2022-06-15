@@ -23,6 +23,7 @@ def SST(u,k,om,mu,mut,rho,mesh,p):
     dkdz  = mesh.ddz@k
     domdz = mesh.ddz@om
     
+    underrelaxOm = 0.4
     # blending functions
     CD_kom = cp.maximum(2*rho*sigw2/om*dkdz*domdz,1E-20)
     tmpvar1 = cp.sqrt(k)/(Bstr*om*mesh.z)
@@ -45,7 +46,7 @@ def SST(u,k,om,mu,mut,rho,mesh,p):
     sigw = sigw1*F1+(1-F1)*(sigw2)
     B = B1*F1+(1-F1)*(B2)
     gam = gam1*F1+(1-F1)*(gam2)
-    # pdb.set_trace()
+
     #  -----------om ----------------------
     mueff = (mu + sigw*mut)/cp.sqrt(rho)
     A=mesh.d2dz2.copy()
@@ -60,23 +61,15 @@ def SST(u,k,om,mu,mut,rho,mesh,p):
     # Boundary Condition
     om[0] = 60*mu[0]/(rho[0]*B1*mesh.z[1]**2)
     om[p.nz-1] = 3*p.Uinf/p.L
-    # pdb.set_trace()
-    # B matrix
+
+    # b matrix
     b = -gam*rho*strte*strte - (1-F1)*CD_kom
-    # tmp2 = om[0]*A[1:p.nz-1,0]
-    # b[1] = b[1] - tmp2[0,0]
-    # tmp2 = om[p.nz-1]*A[1:p.nz-1,p.nz-1] 
-    # b[p.nz-2] = b[p.nz-2]- tmp2[p.nz-3,0]
-    # pdb.set_trace()
+
     # Jacobi Preconditioner
-    D = cpx.diags(A[1:p.nz-1, 1:p.nz-1].diagonal(),offsets=0)
+    # D = cpx.diags(A[1:p.nz-1, 1:p.nz-1].diagonal(),offsets=0)
 
-    underrelaxOm = 0.4
-
-    # Solving
-    # sol = gmres(A[1:p.nz-1, 1:p.nz-1],b[1:p.nz-1],cp.sqrt(rho[1:p.nz-1])*om[1:p.nz-1], tol=1e-6, maxiter=1 )
-    # om[1:p.nz-1]=sol[0]/cp.sqrt(rho[1:p.nz-1])
-    om = tmp.solveEqn(om*cp.sqrt(rho), A, b[1:p.nz-1], underrelaxOm)/cp.sqrt(rho)
+    # Ax = b Solver
+    om = tmp.solveEqn(om*cp.sqrt(rho), A, b[1:p.nz-1], underrelaxOm,p.igmres)/cp.sqrt(rho)
 
     om[1:-1] = cp.maximum(om[1:-1], 1.e-12)
 
@@ -102,54 +95,43 @@ def SST(u,k,om,mu,mut,rho,mesh,p):
     Pk = cp.minimum(mut*strte*strte, 20*Bstr*k*rho*om)
     b = -Pk
 
-    # tmp2 = k[0]*A[1:p.nz-1,0]
-    # b[1] = b[1] - tmp2[0,0]
-    # tmp2 = k[p.nz-1]*A[1:p.nz-1,p.nz-1] 
-    # b[p.nz-2] = b[p.nz-2]- tmp2[p.nz-3,0]
-
     # Jacobi Preconditioner
     D = cpx.diags(A[1:p.nz-1, 1:p.nz-1].diagonal(),offsets=0)
     underrelaxK = 0.6
-    # pdb.set_trace()
-    # sol = gmres(A[1:p.nz-1, 1:p.nz-1],b[1:p.nz-1],rho[1:p.nz-1]*k[1:p.nz-1],tol=1e-6, maxiter=1)
-    # k[1:p.nz-1]=sol[0]/(rho[1:p.nz-1])
-    k = tmp.solveEqn(k*rho, A, b[1:p.nz-1], underrelaxK)/rho
+
+    # Ax=b Solver
+    k = tmp.solveEqn(k*rho, A, b[1:p.nz-1], underrelaxK,p.igmres)/rho
     k[1:-1] = cp.maximum(k[1:-1], 1.e-12)
 
 
     return k,om,mut
 
 def Momentum(u,mut,mu,p,mesh,rho):
-    # import pdb
     import cupy as cp
     import cupyx.scipy.sparse.linalg as cpx
     import tmp
+    underrelaxU = 0.5
     mueff = mu+mut
 
     A=mesh.d2dz2.copy()
     dmueffdz = mesh.ddz@mueff
     for m in range(0,p.nz):
         A[m,:] = mesh.d2dz2[m,:]*mueff[m] + mesh.ddz[m,:]*dmueffdz[m]
-    # pdb.set_trace( )
     b=cp.zeros((p.nz))
+
+    # b matrix
     for m in range(0,p.nz):
         if  (mesh.z[m]/p.ztau >400):
             b[m] = 0      
         else:       
             b[m] = -rho[0]* p.utau*p.utau 
+    
+    # Boundary Condition
     u[0] = 0
     u[p.nz-1] = p.Uinf
-    # tmp2 = u[p.nz-1] * A[1:p.nz-1,p.nz-1]
-    
-    # b[p.nz-2] = b[p.nz-2] - tmp2[p.nz-3,0]
 
-    # sol = cpx.gmres(A[1:p.nz-1,1:p.nz-1],b[1:p.nz-1],u[1:p.nz-1],tol=1e-6, maxiter=1)
-    # u[1:p.nz-1] = sol[0]
-    # pdb.set_trace( )
-    # u[1:p.nz-1] = cpx.spsolve(A[1:p.nz-1, 1:p.nz-1], b[1:p.nz-1])
-    # pdb.set_trace( )
-    underrelaxU = 0.5
-    u = tmp.solveEqn(u, A, b[1:p.nz-1], underrelaxU)
+    # Ax = b Solver
+    u = tmp.solveEqn(u, A, b[1:p.nz-1], underrelaxU,p.igmres)
     u[1:-1] = cp.maximum(u[1:-1], 0.0)
 
     return u
