@@ -6,6 +6,7 @@ from Global import input
 from initialization import initfield
 import GovEq
 with cp.cuda.Device(1):
+    
 p=input()
 mesh=Mesh(p.nz,p.chi)
 # mesh = Mesh(p.nz, 8.70379880e-02, 6, 1)
