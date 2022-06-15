@@ -1,4 +1,4 @@
-The main code to run the 1D Compressible Boundary Layer code is test.py.(Tentative name) It is a python based code that runs on GPU using Cupy.
+The main code to run the 1D Compressible Boundary Layer code is test.py along with all the other python files.(Tentative name) It is a python based code that runs on GPU using Cupy.
 The code solves 1-D RANS equations with density corrected SST k-w model and velocity-temperature relationship based on a generalized Reynolds analogy[Ref 1,2].
 Boudary conditions are dirichlet boundary conditions for all dependent variables with PDE formulation(velocity, k, omega)
 
