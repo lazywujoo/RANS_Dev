@@ -14,3 +14,4 @@ class input:
         self.Minf = 7.87
         self.rinf = 0.026
         self.L  = 3.28
+        self.igmres = 1

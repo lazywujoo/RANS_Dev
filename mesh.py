@@ -69,10 +69,3 @@ class Mesh:
         for k in range(0,n):
             d2dz2[k,:]= d2udchi2[k,:]*cp.power(dchidz[k],2)-ddz[k,:]*d2zdchi2[k]*cp.power(dchidz[k],2)
         self.d2dz2 = d2dz2
-
-        # print('----------dchidz')
-        # print(dchidz)
-        # print('---------d2zdchi2')
-        # print(d2zdchi2)
-        # print('---------d2dz2')
-        # print(d2dz2)

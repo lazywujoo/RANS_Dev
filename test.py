@@ -5,7 +5,6 @@ import time
 from Global import input
 from initialization import initfield
 import GovEq
-with cp.cuda.Device(1):
     
 p=input()
 mesh=Mesh(p.nz,p.chi)
@@ -22,14 +21,14 @@ k = inivar.k
 om = inivar.om
 start = time.time()
 print(start)
-while res > 1.0e-4 and itcnt<1e6 :
+while res > 1.0e-3 and itcnt<1e6 :
     k,om,mut = GovEq.SST(u,k,om,mu,mut,rho,mesh,p)
     unm=u.copy()
     u = GovEq.Momentum(u,mut,mu,p,mesh,rho)
     rho,T,mu = GovEq.Algebraic(u,p,T,rho,mu)
     res = cp.linalg.norm(u-unm)/p.nz
 
-    if itcnt%10 == 0: 
+    if itcnt%100 == 0: 
         print("iteration: ",itcnt, ", Residual(u) = ", res)
         print('--------k--------')
         print(k) 
