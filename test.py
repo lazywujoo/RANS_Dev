@@ -5,6 +5,7 @@ import time
 from Global import input
 from initialization import initfield
 import GovEq
+import pdb
     
 p=input()
 mesh=Mesh(p.nz,p.chi)
@@ -20,23 +21,30 @@ mut = inivar.mut
 k = inivar.k
 om = inivar.om
 start = time.time()
-print(start)
-while res > 1.0e-3 and itcnt<1e6 :
+while res > 1.0e-3 and itcnt<1 :
+    start2 = time.time()
     k,om,mut = GovEq.SST(u,k,om,mu,mut,rho,mesh,p)
+    end2 = time.time()
+    print('SST module time = ', end2 - start2)
+    
     unm=u.copy()
+    start2 = time.time()
     u = GovEq.Momentum(u,mut,mu,p,mesh,rho)
+    end2 = time.time()
+    print('momentum module time', end2 - start2)
     rho,T,mu = GovEq.Algebraic(u,p,T,rho,mu)
+    start2 = time.time()
+    print('algebraic module time = ', start2-end2)
     res = cp.linalg.norm(u-unm)/p.nz
-
     if itcnt%100 == 0: 
         print("iteration: ",itcnt, ", Residual(u) = ", res)
-        print('--------k--------')
-        print(k) 
-        print('--------u--------')
-        print(u)            
+        # print('--------k--------')
+        # print(k) 
+        # print('--------u--------')
+        # print(u)            
     itcnt = itcnt + 1
 end = time.time()
-print(end - start)
+print('total iteration time= ',end - start)
 
 
     
