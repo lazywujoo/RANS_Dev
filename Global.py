@@ -1,17 +1,19 @@
 class input:
     def __init__(self):
-        self.nz = 200   
-        self.Uinf = 1155.1 
-        self.utau = 54.3 
-        self.zpls2=0.2 
-        self.ztau = 67.7e-6 
+        self.nz = 300 
+        self.Uinf = 2081.55
+        self.utau = 110.4
+        self.zpls2= 0.2 
+        self.ztau = 7.323E-05
         self.chi = 1.025
         self.delta_Ref = 0.0353 
-        self.limres=1e-6 
-        self.Tw = 298 
-        self.Tinf = 51.8 
+        self.Tw = 2160.4
+        self.Tinf = 220
         self.gam = 1.4
-        self.Minf = 7.87
-        self.rinf = 0.026
+        self.Minf = 7.0
+        self.rinf = 0.1
         self.L  = 3.28
         self.igmres = 1
+        self.itempeq = 1
+        self.rhow = 1.018E-02
+        self.delta = 3.736E-02

@@ -1,6 +1,6 @@
 import cupy as cp
 class initfield:
-    def __init__(self,nz,ztau,utau,Uinf,Tinf,gam,Minf,Tw,z):
+    def __init__(self,nz,ztau,utau,Uinf,Tinf,gam,Minf,Tw,z,rwall):
         # ----------------------------------------------------
         # Velocity Initialization
         # ----------------------------------------------------
@@ -10,11 +10,13 @@ class initfield:
         upls = upls_vis+(1+cp.tanh(0.3*(z/ztau-7)))/2*(upls_log-upls_vis)
         upls[0] = 0
 
-        u=cp.zeros(nz)
-        for m in range(1,nz):
-            u[m] = upls[m]*utau
-            if ( u[m] >= Uinf ):
-                u[nz-1] = Uinf 
+        u=cp.ones(nz)*Uinf
+        u[0] = 0
+        u[nz-1] = Uinf
+        # for m in range(1,nz):
+        #     u[m] = upls[m]*utau
+        #     if ( u[m] >= Uinf ):
+        #         u[nz-1] = Uinf 
         self.u = u
         # ----------------------------------------------------
         # Temperature Initialization
@@ -31,7 +33,6 @@ class initfield:
         # density Initialization
         # -------------------------------------------------------
         rho = cp.zeros(nz)
-        rwall = 0.0041
         for m in range(0,nz):
             rho[m] = rwall*Tw/T[m]
         self.rho = rho
@@ -41,7 +42,8 @@ class initfield:
         # -------------------------------------------------------
         mu = cp.zeros(nz)
         for m in range(0,nz):
-            mu[m] = 1.458E-6*cp.sqrt(Tinf**3)/(Tinf+110.3)*(T[m]/Tinf)**0.76
+            # mu[m] = 1.458E-6*cp.sqrt(Tinf**3)/(Tinf+110.3)*(T[m]/Tinf)**0.76
+            mu[m] = 1.458E-6*cp.sqrt(T[m]**3)/(T[m]+110.3)
         self.mu = mu        
 
         # ------------------------------------------------------
