@@ -10,7 +10,7 @@ class initfield:
         upls = upls_vis+(1+cp.tanh(0.3*(z/ztau-7)))/2*(upls_log-upls_vis)
         upls[0] = 0
 
-        u=cp.ones(nz)*Uinf
+        u=cp.ones(nz)*0.0
         u[0] = 0
         u[nz-1] = Uinf
         # for m in range(1,nz):
@@ -52,12 +52,19 @@ class initfield:
         k = cp.zeros(nz)
         om =cp.zeros(nz) 
         mut = cp.zeros(nz)
+        v2 = cp.zeros(nz)
+        e = cp.zeros(nz)
         for m in range(0,nz):
             k[m] = 0.01
             om[m] = 1 
-            mut[m] = 0 
+            mut[m] = 0
+            v2[m] = 1/3*k[m]
+            e[m] = 0.001
+
         self.k = k
         self.om = om
         self.mut = mut
+        self.e = e
+        self.v2 = v2
 
              

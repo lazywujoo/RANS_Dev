@@ -14,9 +14,9 @@ class Mesh:
         kcnt=2
         for k in range(2,n):
             ztmp[k] = (ztmp[k-1]-ztmp[k-2])*chi+ztmp[k-1]
-            if ztmp[k] > p.delta:
-                ztmp[k] = p.delta
-                break
+            # if ztmp[k] > p.delta:
+            #     ztmp[k] = p.delta
+            #     break
             kcnt=kcnt+1
         z = ztmp[0:kcnt]
         n = kcnt
